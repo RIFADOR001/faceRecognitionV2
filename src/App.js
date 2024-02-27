@@ -4,9 +4,11 @@ import MouseParticles from 'react-mouse-particles' //mine
 import Clarifai from 'clarifai';
 import Navigation from './components/Navigation/Navigation';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
+import FaceRecognition2 from './components/FaceRecognition/FaceRecognition2';
 import Signin from './components/Signin/Signin';
 import Logo from './components/Logo/Logo';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
+import ImageLinkForm2 from './components/ImageLinkForm/ImageLinkForm2';
 import Rank from './components/Rank/Rank';
 import Register from './components/Register/Register';
 import './App.css';
@@ -90,9 +92,36 @@ class App extends React.Component {
       imageUrl: '',
       box: {},
       route: 'signin',
-      isSignIn: false
+      isSignIn: false,
+      boxList: [],
+      user: {
+        id: '',
+        name: '',
+        email: '',
+        entries: 0,
+        joined: ''
+      }
     }
   }
+
+
+  loadUser = (data) => {
+    this.setState({user: {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      entries: data.entries,
+      joined: data.joined
+    }})
+  }
+
+
+  // Checking connection with server
+  // componentDidMount() {
+  //   fetch('http://localhost:3000')
+  //     .then(response => response.json())
+  //     .then(console.log)
+  // }
 
   calculateFaceLocation = (data) => {
     const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
@@ -107,8 +136,41 @@ class App extends React.Component {
     }
   }
 
+  getBox = (width, height, region) => {
+    const box = region.region_info.bounding_box;
+    // console.log("printing box: ", box);
+    // console.log("printing dims: ", width, height);
+    return {
+      leftCol: box.left_col * width,
+      topRow: box.top_row * height,
+      rightCol: width - (box.right_col * width),
+      bottomRow: height - (box.bottom_row * height)
+    }
+  }
+
+  calculateFacesLocations = (data) => {
+    // const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+    const clarifaiFaces = data.outputs[0].data.regions;      
+    const image = document.getElementById('inputimage');
+    const width = Number(image.width); 
+    const height = Number(image.height);
+    // console.log(clarifaiFaces);
+    // const boxList = clarifaiFaces.map((width, height, face) => this.getBox(width, height, face));
+    const boxList = clarifaiFaces.map( region => {
+      return this.getBox(width, height, region)
+    })
+    // console.log("Printing Box list: ",boxList);
+    return boxList
+  }
+
   displayFaceBox = (box) => {
     this.setState({box: box})
+  }
+
+  displayFaceBoxes = (boxList) => {
+    // console.log("Printing again box list: ", boxList)
+    this.setState({boxList: boxList})
+    // console.log("Printing boxlist state: ", this.state.boxList);
   }
 
   onInputChange = (event) => {
@@ -117,11 +179,60 @@ class App extends React.Component {
 
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input})
-
+    // console.log(this.state.input);
     fetch("https://api.clarifai.com/v2/models/" + "face-detection" + "/outputs", clarifaiJSONRequestOptions(this.state.input))
       .then(response => response.json())
-      .then(response => this.displayFaceBox(this.calculateFaceLocation(response)))
+      .then(response => {
+        if(response) {
+          fetch('http://localhost:3000/image', {
+            method: 'put',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+            id: this.state.user.id
+            })
+          })
+        }
+        this.displayFaceBox(this.calculateFaceLocation(response))
+      })
       .catch(err => console.log);
+
+  }
+
+  boxes = async function () {
+      // console.log('onButtonSubmit2');
+      try {
+        // console.log(this.state);
+        const response = await fetch("https://api.clarifai.com/v2/models/" + "face-detection" + "/outputs", clarifaiJSONRequestOptions(this.state.input));
+        const data = await response.json();
+        if(data) {
+          // console.log('response');
+          // console.log(data);
+          fetch('http://localhost:3000/image', {
+            method: 'put',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+            id: this.state.user.id
+            })
+          })
+        }
+        this.displayFaceBoxes(this.calculateFacesLocations(data));
+        // setTimeout(() => console.log("state after 1s: ",this.state.boxList) ,1000);
+        // console.log(this.state.boxList);
+      } catch (err) {
+        console.log('Error while fetching and computing boxes', err);
+      }
+    }
+
+  onButtonSubmit2 = () => {
+    this.setState({imageUrl: this.state.input})
+
+    // fetch("https://api.clarifai.com/v2/models/" + "face-detection" + "/outputs", clarifaiJSONRequestOptions(this.state.input))
+    //   .then(response => response.json())
+    //   .then(response => this.displayFaceBoxes(this.calculateFacesLocations(response)))
+    //   .then(() => setTimeout(() => console.log("state after 1s: ",this.state.boxList) ,1000))
+    //   .catch(err => console.log);
+
+    this.boxes();
   }
 
   onRouteChange = (route) => {
@@ -136,7 +247,8 @@ class App extends React.Component {
 // video 288 for corrections
 
   render (){
-    const { isSignIn, imageUrl, route, box } = this.state;
+    const { isSignIn, imageUrl, route, box, boxList } = this.state;
+    // console.log('App, state of boxList:', boxList);
     return (
       <div className="App">
         <MouseParticles g={1} color="random" cull="col,image-wrapper"/> {/*Mine*/}
@@ -149,18 +261,18 @@ class App extends React.Component {
         { route === 'home' 
           ?<div> 
               <Logo />
-              <Rank />
-              <ImageLinkForm 
+              <Rank userName={this.state.user.name} entries={this.state.user.entries}/>
+              <ImageLinkForm2 
               onInputChange={this.onInputChange} 
-              onButtonSubmit={this.onButtonSubmit} 
+              onButtonSubmit2={this.onButtonSubmit2} 
               />
-              <FaceRecognition 
-                box={box} 
+              <FaceRecognition2 
+                boxes={boxList} 
                 imageUrl={imageUrl} />
             </div>
           : route === 'register'
-          ? <Register onRouteChange={this.onRouteChange}/>
-          : <Signin onRouteChange={this.onRouteChange}/>
+          ? <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
+          : <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
           
           }
       </div>
