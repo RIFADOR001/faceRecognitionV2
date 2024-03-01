@@ -84,25 +84,28 @@ const clarifaiJSONRequestOptions = (imageUrl) => {
 //     .catch(error => console.log('error', error));
 
 
+const initialState = {
+  input: '',
+  imageUrl: '',
+  box: {},
+  route: 'signin',
+  isSignIn: false,
+  boxList: [],
+  user: {
+    id: '',
+    name: '',
+    email: '',
+    entries: 0,
+    joined: ''
+  }
+}
+
 class App extends React.Component {
   constructor() {
     super();
-    this.state = {
-      input: '',
-      imageUrl: '',
-      box: {},
-      route: 'signin',
-      isSignIn: false,
-      boxList: [],
-      user: {
-        id: '',
-        name: '',
-        email: '',
-        entries: 0,
-        joined: ''
-      }
+    this.state = initialState;
     }
-  }
+  
 
 
   loadUser = (data) => {
@@ -214,6 +217,10 @@ class App extends React.Component {
             id: this.state.user.id
             })
           })
+          .then(response => response.json())
+          .then(count => {
+            this.setState(Object.assign(this.state.user, { entries: count }))
+          })
         }
         this.displayFaceBoxes(this.calculateFacesLocations(data));
         // setTimeout(() => console.log("state after 1s: ",this.state.boxList) ,1000);
@@ -237,9 +244,9 @@ class App extends React.Component {
 
   onRouteChange = (route) => {
     if (route === 'signout') {
-      this.setState({isSignIn: false})
+      this.setState(initialState);
     }else if (route === 'home') {
-      this.setState({isSignIn: true})
+      this.setState({isSignIn: true});
     }
     this.setState({route: route});
   }
@@ -248,7 +255,6 @@ class App extends React.Component {
 
   render (){
     const { isSignIn, imageUrl, route, box, boxList } = this.state;
-    // console.log('App, state of boxList:', boxList);
     return (
       <div className="App">
         <MouseParticles g={1} color="random" cull="col,image-wrapper"/> {/*Mine*/}
