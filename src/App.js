@@ -17,42 +17,42 @@ import 'tachyons';
 //https://github.com/lindelof/react-mouse-particles
 
 
-const clarifaiJSONRequestOptions = (imageUrl) => {
-  // Your PAT (Personal Access Token) can be found in the portal under Authentification
-  const PAT = 'dddddd4366314e48ab070884a87e40f4';
-  // Specify the correct user_id/app_id pairings
-  // Since you're making inferences outside your app's scope
-  const USER_ID = 'rif01';
-  const APP_ID = 'facebrain';
-  // Change these to whatever model and image URL you want to use
-  const MODEL_ID = 'face-detection';
-  const IMAGE_URL = imageUrl;
-  const raw = JSON.stringify({
-    "user_app_id": {
-        "user_id": USER_ID,
-        "app_id": APP_ID
-    },
-    "inputs": [
-        {
-            "data": {
-                "image": {
-                    "url": IMAGE_URL
-                    // "base64": IMAGE_BYTES_STRING
-                }
-            }
-        }
-      ]
-  });
-  const requestOptions = {
-    method: 'POST',
-    headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Key ' + PAT
-    },
-    body: raw
-  };  
-  return requestOptions
-}
+// const clarifaiJSONRequestOptions = (imageUrl) => {
+//   // Your PAT (Personal Access Token) can be found in the portal under Authentification
+//   const PAT = 'dddddd4366314e48ab070884a87e40f4';
+//   // Specify the correct user_id/app_id pairings
+//   // Since you're making inferences outside your app's scope
+//   const USER_ID = 'rif01';
+//   const APP_ID = 'facebrain';
+//   // Change these to whatever model and image URL you want to use
+//   const MODEL_ID = 'face-detection';
+//   const IMAGE_URL = imageUrl;
+//   const raw = JSON.stringify({
+//     "user_app_id": {
+//         "user_id": USER_ID,
+//         "app_id": APP_ID
+//     },
+//     "inputs": [
+//         {
+//             "data": {
+//                 "image": {
+//                     "url": IMAGE_URL
+//                     // "base64": IMAGE_BYTES_STRING
+//                 }
+//             }
+//         }
+//       ]
+//   });
+//   const requestOptions = {
+//     method: 'POST',
+//     headers: {
+//         'Accept': 'application/json',
+//         'Authorization': 'Key ' + PAT
+//     },
+//     body: raw
+//   };  
+//   return requestOptions
+// }
 
 
 
@@ -127,7 +127,7 @@ class App extends React.Component {
   // }
 
   calculateFaceLocation = (data) => {
-    console.log('data: ', data.outputs);
+    console.log('data: ', data);
     // const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
     const clarifaiFace = data[0].region_info.bounding_box;
     const image = document.getElementById('inputimage');
@@ -185,8 +185,7 @@ class App extends React.Component {
 
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input})
-    // console.log(this.state.input);
-    /*********************************************
+
     fetch("http://localhost:3000/imageurl", {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
@@ -195,70 +194,13 @@ class App extends React.Component {
       })
     })
       .then(response => {
-        console.log('res from api: ', response);
-        return response.json()
-      })
-      .then(response => {
-        console.log('res from api: ', response);
-        return response.json()
-      })
-      .then(response => {
-        console.log('json: ', response);
-        if(response) {
-          console.log('if response: ')
-          fetch('http://localhost:3000/image', {
-            method: 'put',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-            id: this.state.user.id
-            })
-          })
-        }
-        this.displayFaceBox(this.calculateFaceLocation(response))
-      })
-      .catch(err => console.log);
-/***************************************************/
-/***************************************************
-    fetch("https://api.clarifai.com/v2/models/" + "face-detection" + "/outputs", clarifaiJSONRequestOptions(this.state.input))
-      .then(response => {
-        console.log('api response from app: ', response.outputs);
-        return response.json()
-      })
-      .then(response => {
-        console.log('again: ', response.outputs);
-        if(response) {
-          fetch('http://localhost:3000/image', {
-            method: 'put',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-            id: this.state.user.id
-            })
-          })
-        }
-        this.displayFaceBox(this.calculateFaceLocation(response))
-      })
-      .catch(err => console.log);
-/***************************************************/
-    fetch("http://localhost:3000/test", {
-      method: 'post',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        input: this.state.input
-      })
-    })
-      .then(response => {
-        console.log('res (regions?) from testapi: ', response);
+        // console.log('res (regions?) from testapi: ', response);
         return response.json()
       })
       .then(response => {
         console.log('res from testapi: ', response);
         this.displayFaceBox(this.calculateFaceLocation(response))
-        return response.json()
-      })
-      .then(response => {
-        console.log('json: ', response);
-        if(response) {
-          console.log('test if response: ')
+        if (response[0].region_info.bounding_box){
           fetch('http://localhost:3000/image', {
             method: 'put',
             headers: {'Content-Type': 'application/json'},
@@ -266,8 +208,11 @@ class App extends React.Component {
             id: this.state.user.id
             })
           })
+          .then(response => response.json())
+          .then(count => {
+            this.setState(Object.assign(this.state.user, { entries: count }))
+          })
         }
-        this.displayFaceBox(this.calculateFaceLocation(response))
       })
       .catch(err => console.log);
   /**************************************************************/
@@ -275,6 +220,7 @@ class App extends React.Component {
 /**************************************************************
   boxes = async function () {
       // console.log('onButtonSubmit2');
+    /***********************************************************
       try {
         // console.log(this.state);
         const response = await fetch("https://api.clarifai.com/v2/models/" + "face-detection" + "/outputs", clarifaiJSONRequestOptions(this.state.input));
@@ -301,6 +247,34 @@ class App extends React.Component {
       } catch (err) {
         console.log('Error while fetching and computing boxes', err);
       }
+/***********************************************************
+      fetch("http://localhost:3000/imageurl", {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        input: this.state.input
+      })
+    })
+      .then(response => {
+        // console.log('res (regions?) from testapi: ', response);
+        return response.json()
+      })
+      .then(response => {
+        console.log('res from testapi: ', response);
+        this.displayFaceBox(this.calculateFaceLocation(response))
+        if (response[0].region_info.bounding_box){
+          fetch('http://localhost:3000/image', {
+            method: 'put',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+            id: this.state.user.id
+            })
+          })
+        }
+      })
+      .catch(err => console.log);
+/***********************************************************
+
     }
 
   onButtonSubmit2 = () => {
