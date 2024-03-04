@@ -17,7 +17,6 @@ import 'tachyons';
 //https://github.com/lindelof/react-mouse-particles
 
 
-
 const clarifaiJSONRequestOptions = (imageUrl) => {
   // Your PAT (Personal Access Token) can be found in the portal under Authentification
   const PAT = 'dddddd4366314e48ab070884a87e40f4';
@@ -54,6 +53,7 @@ const clarifaiJSONRequestOptions = (imageUrl) => {
   };  
   return requestOptions
 }
+
 
 
 // fetch("https://api.clarifai.com/v2/models/" + "face-detection" + "/outputs", clarifaiJSONRequestOptions(this.state.input))
@@ -127,10 +127,13 @@ class App extends React.Component {
   // }
 
   calculateFaceLocation = (data) => {
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+    console.log('data: ', data.outputs);
+    // const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+    const clarifaiFace = data[0].region_info.bounding_box;
     const image = document.getElementById('inputimage');
     const width = Number(image.width); 
     const height = Number(image.height);
+    console.log('face: ', clarifaiFace);
     return {
       leftCol: clarifaiFace.left_col * width,
       topRow: clarifaiFace.top_row * height,
@@ -183,9 +186,46 @@ class App extends React.Component {
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input})
     // console.log(this.state.input);
-    fetch("https://api.clarifai.com/v2/models/" + "face-detection" + "/outputs", clarifaiJSONRequestOptions(this.state.input))
-      .then(response => response.json())
+    /*********************************************
+    fetch("http://localhost:3000/imageurl", {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        input: this.state.input
+      })
+    })
       .then(response => {
+        console.log('res from api: ', response);
+        return response.json()
+      })
+      .then(response => {
+        console.log('res from api: ', response);
+        return response.json()
+      })
+      .then(response => {
+        console.log('json: ', response);
+        if(response) {
+          console.log('if response: ')
+          fetch('http://localhost:3000/image', {
+            method: 'put',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+            id: this.state.user.id
+            })
+          })
+        }
+        this.displayFaceBox(this.calculateFaceLocation(response))
+      })
+      .catch(err => console.log);
+/***************************************************/
+/***************************************************
+    fetch("https://api.clarifai.com/v2/models/" + "face-detection" + "/outputs", clarifaiJSONRequestOptions(this.state.input))
+      .then(response => {
+        console.log('api response from app: ', response.outputs);
+        return response.json()
+      })
+      .then(response => {
+        console.log('again: ', response.outputs);
         if(response) {
           fetch('http://localhost:3000/image', {
             method: 'put',
@@ -198,9 +238,41 @@ class App extends React.Component {
         this.displayFaceBox(this.calculateFaceLocation(response))
       })
       .catch(err => console.log);
-
+/***************************************************/
+    fetch("http://localhost:3000/test", {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        input: this.state.input
+      })
+    })
+      .then(response => {
+        console.log('res (regions?) from testapi: ', response);
+        return response.json()
+      })
+      .then(response => {
+        console.log('res from testapi: ', response);
+        this.displayFaceBox(this.calculateFaceLocation(response))
+        return response.json()
+      })
+      .then(response => {
+        console.log('json: ', response);
+        if(response) {
+          console.log('test if response: ')
+          fetch('http://localhost:3000/image', {
+            method: 'put',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+            id: this.state.user.id
+            })
+          })
+        }
+        this.displayFaceBox(this.calculateFaceLocation(response))
+      })
+      .catch(err => console.log);
+  /**************************************************************/
   }
-
+/**************************************************************
   boxes = async function () {
       // console.log('onButtonSubmit2');
       try {
@@ -221,6 +293,7 @@ class App extends React.Component {
           .then(count => {
             this.setState(Object.assign(this.state.user, { entries: count }))
           })
+          .catch(console.log)
         }
         this.displayFaceBoxes(this.calculateFacesLocations(data));
         // setTimeout(() => console.log("state after 1s: ",this.state.boxList) ,1000);
@@ -241,7 +314,7 @@ class App extends React.Component {
 
     this.boxes();
   }
-
+/**************************************************************/
   onRouteChange = (route) => {
     if (route === 'signout') {
       this.setState(initialState);
@@ -252,7 +325,10 @@ class App extends React.Component {
   }
 
 // video 288 for corrections
-
+  // <ImageLinkForm2 
+// onButtonSubmit2={this.onButtonSubmit2} 
+  //<FaceRecognition2
+  //boxes={boxList}
   render (){
     const { isSignIn, imageUrl, route, box, boxList } = this.state;
     return (
@@ -268,12 +344,12 @@ class App extends React.Component {
           ?<div> 
               <Logo />
               <Rank userName={this.state.user.name} entries={this.state.user.entries}/>
-              <ImageLinkForm2 
+              <ImageLinkForm 
               onInputChange={this.onInputChange} 
-              onButtonSubmit2={this.onButtonSubmit2} 
+              onButtonSubmit={this.onButtonSubmit} 
               />
-              <FaceRecognition2 
-                boxes={boxList} 
+              <FaceRecognition
+                box={box} 
                 imageUrl={imageUrl} />
             </div>
           : route === 'register'

@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Rank = (user) => {
-	console.log(user);
+	// console.log(user);
 	const name = user.userName;
 	const entries = user.entries;
 	return (
