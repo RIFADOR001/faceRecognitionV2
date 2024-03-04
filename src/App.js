@@ -17,44 +17,6 @@ import 'tachyons';
 //https://github.com/lindelof/react-mouse-particles
 
 
-// const clarifaiJSONRequestOptions = (imageUrl) => {
-//   // Your PAT (Personal Access Token) can be found in the portal under Authentification
-//   const PAT = 'dddddd4366314e48ab070884a87e40f4';
-//   // Specify the correct user_id/app_id pairings
-//   // Since you're making inferences outside your app's scope
-//   const USER_ID = 'rif01';
-//   const APP_ID = 'facebrain';
-//   // Change these to whatever model and image URL you want to use
-//   const MODEL_ID = 'face-detection';
-//   const IMAGE_URL = imageUrl;
-//   const raw = JSON.stringify({
-//     "user_app_id": {
-//         "user_id": USER_ID,
-//         "app_id": APP_ID
-//     },
-//     "inputs": [
-//         {
-//             "data": {
-//                 "image": {
-//                     "url": IMAGE_URL
-//                     // "base64": IMAGE_BYTES_STRING
-//                 }
-//             }
-//         }
-//       ]
-//   });
-//   const requestOptions = {
-//     method: 'POST',
-//     headers: {
-//         'Accept': 'application/json',
-//         'Authorization': 'Key ' + PAT
-//     },
-//     body: raw
-//   };  
-//   return requestOptions
-// }
-
-
 
 // fetch("https://api.clarifai.com/v2/models/" + "face-detection" + "/outputs", clarifaiJSONRequestOptions(this.state.input))
 //     .then(response => response.json())
@@ -142,8 +104,7 @@ class App extends React.Component {
     }
   }
 
-  getBox = (width, height, region) => {
-    const box = region.region_info.bounding_box;
+    getBoxBackend = (width, height, box) => {
     // console.log("printing box: ", box);
     // console.log("printing dims: ", width, height);
     return {
@@ -154,16 +115,17 @@ class App extends React.Component {
     }
   }
 
-  calculateFacesLocations = (data) => {
+
+  calculateFacesLocationsBackend = (data) => {
     // const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
-    const clarifaiFaces = data.outputs[0].data.regions;      
     const image = document.getElementById('inputimage');
     const width = Number(image.width); 
     const height = Number(image.height);
     // console.log(clarifaiFaces);
     // const boxList = clarifaiFaces.map((width, height, face) => this.getBox(width, height, face));
-    const boxList = clarifaiFaces.map( region => {
-      return this.getBox(width, height, region)
+    const boxList = data.map( obj => {
+      const box = obj.region_info.bounding_box;
+      return this.getBoxBackend(width, height, box)
     })
     // console.log("Printing Box list: ",boxList);
     return boxList
@@ -217,38 +179,11 @@ class App extends React.Component {
       .catch(err => console.log);
   /**************************************************************/
   }
-/**************************************************************
-  boxes = async function () {
-      // console.log('onButtonSubmit2');
-    /***********************************************************
-      try {
-        // console.log(this.state);
-        const response = await fetch("https://api.clarifai.com/v2/models/" + "face-detection" + "/outputs", clarifaiJSONRequestOptions(this.state.input));
-        const data = await response.json();
-        if(data) {
-          // console.log('response');
-          // console.log(data);
-          fetch('http://localhost:3000/image', {
-            method: 'put',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-            id: this.state.user.id
-            })
-          })
-          .then(response => response.json())
-          .then(count => {
-            this.setState(Object.assign(this.state.user, { entries: count }))
-          })
-          .catch(console.log)
-        }
-        this.displayFaceBoxes(this.calculateFacesLocations(data));
-        // setTimeout(() => console.log("state after 1s: ",this.state.boxList) ,1000);
-        // console.log(this.state.boxList);
-      } catch (err) {
-        console.log('Error while fetching and computing boxes', err);
-      }
-/***********************************************************
-      fetch("http://localhost:3000/imageurl", {
+
+  onButtonSubmit2 = () => {
+    this.setState({imageUrl: this.state.input})
+
+    fetch("http://localhost:3000/imageurl", {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -260,8 +195,10 @@ class App extends React.Component {
         return response.json()
       })
       .then(response => {
-        console.log('res from testapi: ', response);
-        this.displayFaceBox(this.calculateFaceLocation(response))
+        // console.log('res from testapi: ', response);
+
+        this.displayFaceBoxes(this.calculateFacesLocationsBackend(response))
+
         if (response[0].region_info.bounding_box){
           fetch('http://localhost:3000/image', {
             method: 'put',
@@ -270,23 +207,13 @@ class App extends React.Component {
             id: this.state.user.id
             })
           })
+          .then(response => response.json())
+          .then(count => {
+            this.setState(Object.assign(this.state.user, { entries: count }))
+          })
         }
       })
       .catch(err => console.log);
-/***********************************************************
-
-    }
-
-  onButtonSubmit2 = () => {
-    this.setState({imageUrl: this.state.input})
-
-    // fetch("https://api.clarifai.com/v2/models/" + "face-detection" + "/outputs", clarifaiJSONRequestOptions(this.state.input))
-    //   .then(response => response.json())
-    //   .then(response => this.displayFaceBoxes(this.calculateFacesLocations(response)))
-    //   .then(() => setTimeout(() => console.log("state after 1s: ",this.state.boxList) ,1000))
-    //   .catch(err => console.log);
-
-    this.boxes();
   }
 /**************************************************************/
   onRouteChange = (route) => {
@@ -298,11 +225,18 @@ class App extends React.Component {
     this.setState({route: route});
   }
 
-// video 288 for corrections
-  // <ImageLinkForm2 
-// onButtonSubmit2={this.onButtonSubmit2} 
-  //<FaceRecognition2
-  //boxes={boxList}
+
+/***********************************************
+
+<ImageLinkForm 
+              onInputChange={this.onInputChange} 
+              onButtonSubmit={this.onButtonSubmit} 
+              />
+<FaceRecognition
+                box={box} 
+                imageUrl={imageUrl} />
+/**********************************************/
+
   render (){
     const { isSignIn, imageUrl, route, box, boxList } = this.state;
     return (
@@ -318,12 +252,12 @@ class App extends React.Component {
           ?<div> 
               <Logo />
               <Rank userName={this.state.user.name} entries={this.state.user.entries}/>
-              <ImageLinkForm 
+              <ImageLinkForm2
               onInputChange={this.onInputChange} 
-              onButtonSubmit={this.onButtonSubmit} 
+              onButtonSubmit2={this.onButtonSubmit2} 
               />
-              <FaceRecognition
-                box={box} 
+              <FaceRecognition2
+                boxes={boxList} 
                 imageUrl={imageUrl} />
             </div>
           : route === 'register'
