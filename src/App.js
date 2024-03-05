@@ -148,7 +148,8 @@ class App extends React.Component {
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input})
 
-    fetch("http://localhost:3000/imageurl", {
+    // fetch("http://localhost:3000/imageurl", {
+    fetch("https://facerecognitionbrain-api-1o4x.onrender.com/imageurl", {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -163,7 +164,8 @@ class App extends React.Component {
         console.log('res from testapi: ', response);
         this.displayFaceBox(this.calculateFaceLocation(response))
         if (response[0].region_info.bounding_box){
-          fetch('http://localhost:3000/image', {
+          // fetch('http://localhost:3000/image', {
+          fetch('https://facerecognitionbrain-api-1o4x.onrender.com/image', {
             method: 'put',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -183,7 +185,8 @@ class App extends React.Component {
   onButtonSubmit2 = () => {
     this.setState({imageUrl: this.state.input})
 
-    fetch("http://localhost:3000/imageurl", {
+    // fetch("http://localhost:3000/imageurl", {
+    fetch("https://facerecognitionbrain-api-1o4x.onrender.com/imageurl", {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -200,7 +203,8 @@ class App extends React.Component {
         this.displayFaceBoxes(this.calculateFacesLocationsBackend(response))
 
         if (response[0].region_info.bounding_box){
-          fetch('http://localhost:3000/image', {
+          // fetch('http://localhost:3000/image', {
+          fetch('https://facerecognitionbrain-api-1o4x.onrender.com/image', {
             method: 'put',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({

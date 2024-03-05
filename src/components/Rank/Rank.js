@@ -7,16 +7,19 @@ const Rank = (user) => {
 	return (
 		<div>
 			<div className='white f3'>
-				{`${name} your current rank is...`}
+				{`${name} your current entry count is...`}
 			</div>
 			<div className='white f1'>
-				{'#5'}
+				{entries}
 			</div>
-			<div className='white f3'>
-				{`with ${entries} entries`}
-			</div>
+			
 		</div>
 	);
 }
 
 export default Rank;
+
+
+{/*<div className='white f3'>
+				{`with ${entries} entries`}
+			</div>*/}
