@@ -1,7 +1,7 @@
 import React from 'react';
 import ParticlesBg from 'particles-bg';
 import MouseParticles from 'react-mouse-particles' //mine 
-import Clarifai from 'clarifai';
+// import Clarifai from 'clarifai';
 import Navigation from './components/Navigation/Navigation';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import FaceRecognition2 from './components/FaceRecognition/FaceRecognition2';
@@ -121,8 +121,8 @@ class App extends React.Component {
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input})
 
-    fetch("http://localhost:3000/imageurl", {
-    // fetch("https://facerecognitionbrain-api-1o4x.onrender.com/imageurl", {
+    // fetch("http://localhost:3000/imageurl", {
+    fetch("https://facerecognitionbrain-api-1o4x.onrender.com/imageurl", {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -158,8 +158,8 @@ class App extends React.Component {
   onButtonSubmit2 = () => {
     this.setState({imageUrl: this.state.input})
 
-    fetch("http://localhost:3000/imageurl", {
-    // fetch("https://facerecognitionbrain-api-1o4x.onrender.com/imageurl", {
+    // fetch("http://localhost:3000/imageurl", {
+    fetch("https://facerecognitionbrain-api-1o4x.onrender.com/imageurl", {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
