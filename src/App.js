@@ -2,11 +2,11 @@ import React from 'react';
 import ParticlesBg from 'particles-bg';
 import MouseParticles from 'react-mouse-particles' //mine 
 // import Clarifai from 'clarifai';
-import Navigation from './components/Navigation/Navigation';
-import FaceRecognition from './components/FaceRecognition/FaceRecognition';
+// import Navigation from './components/Navigation/Navigation';
+// import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import FaceRecognition2 from './components/FaceRecognition/FaceRecognition2';
 import Logo from './components/Logo/Logo';
-import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
+// import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import ImageLinkForm2 from './components/ImageLinkForm/ImageLinkForm2';
 import './App.css';
 import 'tachyons';
@@ -215,7 +215,7 @@ class App extends React.Component {
 /**********************************************/
 
   render (){
-    const { isSignIn, imageUrl, route, box, boxList } = this.state;
+    const { imageUrl, boxList } = this.state;
     return (
       <div className="App">
         <MouseParticles g={1} color="random" cull="col,image-wrapper"/> {/*Mine*/}
