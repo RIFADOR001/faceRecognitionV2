@@ -4,7 +4,7 @@ import './FaceRecognition.css';
 
 const FaceRecognition2 = ({ imageUrl, boxes }) => {
 	// console.log('FaceRecognition2, state of boxes: ', boxes);
-	const box = boxes[0];
+	// const box = boxes[0];
 	return (
 		<div className='center ma'>
 			<div className='absolute mt2'>
