@@ -20,7 +20,7 @@ import 'tachyons';
 const initialState = {
   input: '',
   imageUrl: '',
-  box: {},
+  // box: {},
   // route: 'signin',
   route: 'home',
   // isSignIn: false,
