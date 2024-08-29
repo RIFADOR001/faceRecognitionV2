@@ -7,7 +7,7 @@ const Rank = (user) => {
 	return (
 		<div>
 			<div className='white f3'>
-				{`${name} your current entry count is...`}
+				{`${name} Submitted images...`}
 			</div>
 			<div className='white f1'>
 				{entries}

@@ -5,53 +5,26 @@ import Clarifai from 'clarifai';
 import Navigation from './components/Navigation/Navigation';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import FaceRecognition2 from './components/FaceRecognition/FaceRecognition2';
-import Signin from './components/Signin/Signin';
 import Logo from './components/Logo/Logo';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import ImageLinkForm2 from './components/ImageLinkForm/ImageLinkForm2';
-import Rank from './components/Rank/Rank';
-import Register from './components/Register/Register';
 import './App.css';
 import 'tachyons';
 
 //https://github.com/lindelof/react-mouse-particles
 
-
-
-// fetch("https://api.clarifai.com/v2/models/" + "face-detection" + "/outputs", clarifaiJSONRequestOptions(this.state.input))
-//     .then(response => response.json())
-//     .then(result => {
-
-//         const regions = result.outputs[0].data.regions;
-
-//         regions.forEach(region => {
-//             // Accessing and rounding the bounding box values
-//             const boundingBox = region.region_info.bounding_box;
-//             const topRow = boundingBox.top_row.toFixed(3);
-//             const leftCol = boundingBox.left_col.toFixed(3);
-//             const bottomRow = boundingBox.bottom_row.toFixed(3);
-//             const rightCol = boundingBox.right_col.toFixed(3);
-
-//             region.data.concepts.forEach(concept => {
-//                 // Accessing and rounding the concept value
-//                 const name = concept.name;
-//                 const value = concept.value.toFixed(4);
-
-//                 console.log(`${name}: ${value} BBox: ${topRow}, ${leftCol}, ${bottomRow}, ${rightCol}`);
-                
-//             });
-//         });
-
-//     })
-//     .catch(error => console.log('error', error));
+// Image
+//https://www.usatoday.com/gcdn/authoring/authoring-images/2024/07/22/USAT/74506078007-xxx-getty-images-1923851619-sed.JPG?crop=3222,2416,x178,y0
 
 
 const initialState = {
   input: '',
   imageUrl: '',
   box: {},
-  route: 'signin',
-  isSignIn: false,
+  // route: 'signin',
+  route: 'home',
+  // isSignIn: false,
+  isSignIn: true,
   boxList: [],
   user: {
     id: '',
@@ -148,8 +121,8 @@ class App extends React.Component {
   onButtonSubmit = () => {
     this.setState({imageUrl: this.state.input})
 
-    // fetch("http://localhost:3000/imageurl", {
-    fetch("https://facerecognitionbrain-api-1o4x.onrender.com/imageurl", {
+    fetch("http://localhost:3000/imageurl", {
+    // fetch("https://facerecognitionbrain-api-1o4x.onrender.com/imageurl", {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -163,20 +136,20 @@ class App extends React.Component {
       .then(response => {
         console.log('res from testapi: ', response);
         this.displayFaceBox(this.calculateFaceLocation(response))
-        if (response[0].region_info.bounding_box){
-          // fetch('http://localhost:3000/image', {
-          fetch('https://facerecognitionbrain-api-1o4x.onrender.com/image', {
-            method: 'put',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-            id: this.state.user.id
-            })
-          })
-          .then(response => response.json())
-          .then(count => {
-            this.setState(Object.assign(this.state.user, { entries: count }))
-          })
-        }
+        // if (response[0].region_info.bounding_box){
+        //   fetch('http://localhost:3000/image', {
+        //   // fetch('https://facerecognitionbrain-api-1o4x.onrender.com/image', {
+        //     method: 'put',
+        //     headers: {'Content-Type': 'application/json'},
+        //     body: JSON.stringify({
+        //     id: this.state.user.id
+        //     })
+        //   })
+        //   .then(response => response.json())
+        //   .then(count => {
+        //     this.setState(Object.assign(this.state.user, { entries: count }))
+        //   })
+        // }
       })
       .catch(err => console.log);
   /**************************************************************/
@@ -185,8 +158,8 @@ class App extends React.Component {
   onButtonSubmit2 = () => {
     this.setState({imageUrl: this.state.input})
 
-    // fetch("http://localhost:3000/imageurl", {
-    fetch("https://facerecognitionbrain-api-1o4x.onrender.com/imageurl", {
+    fetch("http://localhost:3000/imageurl", {
+    // fetch("https://facerecognitionbrain-api-1o4x.onrender.com/imageurl", {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -202,20 +175,20 @@ class App extends React.Component {
 
         this.displayFaceBoxes(this.calculateFacesLocationsBackend(response))
 
-        if (response[0].region_info.bounding_box){
-          // fetch('http://localhost:3000/image', {
-          fetch('https://facerecognitionbrain-api-1o4x.onrender.com/image', {
-            method: 'put',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-            id: this.state.user.id
-            })
-          })
-          .then(response => response.json())
-          .then(count => {
-            this.setState(Object.assign(this.state.user, { entries: count }))
-          })
-        }
+        // if (response[0].region_info.bounding_box){
+        //   fetch('http://localhost:3000/image', {
+        //   // fetch('https://facerecognitionbrain-api-1o4x.onrender.com/image', {
+        //     method: 'put',
+        //     headers: {'Content-Type': 'application/json'},
+        //     body: JSON.stringify({
+        //     id: this.state.user.id
+        //     })
+        //   })
+        //   .then(response => response.json())
+        //   .then(count => {
+        //     this.setState(Object.assign(this.state.user, { entries: count }))
+        //   })
+        // }
       })
       .catch(err => console.log);
   }
@@ -247,15 +220,10 @@ class App extends React.Component {
       <div className="App">
         <MouseParticles g={1} color="random" cull="col,image-wrapper"/> {/*Mine*/}
         <ParticlesBg className='particles' type="circle" bg={true} />
-        <Navigation 
-          isSignIn={isSignIn}
-          onRouteChange={this.onRouteChange} 
-        
-        />
-        { route === 'home' 
-          ?<div> 
+
+            <div> 
               <Logo />
-              <Rank userName={this.state.user.name} entries={this.state.user.entries}/>
+              
               <ImageLinkForm2
               onInputChange={this.onInputChange} 
               onButtonSubmit2={this.onButtonSubmit2} 
@@ -264,11 +232,6 @@ class App extends React.Component {
                 boxes={boxList} 
                 imageUrl={imageUrl} />
             </div>
-          : route === 'register'
-          ? <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
-          : <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
-          
-          }
       </div>
     )
   };
